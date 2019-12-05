@@ -9,6 +9,7 @@ import itertools
 import logging
 import re
 import string
+import copy
 import tempfile
 import random
 
@@ -36,6 +37,15 @@ def _record_buffer(records, buffer_size=DEFAULT_BUFFER_SIZE):
     Value returned by context manager is a function which returns an iterator
     through records.
     """
+    def record_iter():
+        rl = list(records)
+        i = 0
+        while i < len(rl):
+            cp = copy.deepcopy(rl[i])
+            yield cp
+            i = i + 1
+    yield record_iter
+    """
     with tempfile.SpooledTemporaryFile(buffer_size, mode='wb+') as tf:
         pickler = pickle.Pickler(tf)
         for record in records:
@@ -51,6 +61,7 @@ def _record_buffer(records, buffer_size=DEFAULT_BUFFER_SIZE):
                     break
 
         yield record_iter
+    """
 
 
 def dashes_cleanup(records, prune_chars='.:?~'):
