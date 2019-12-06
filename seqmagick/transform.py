@@ -9,7 +9,6 @@ import itertools
 import logging
 import re
 import string
-import copy
 import tempfile
 import random
 
@@ -30,39 +29,20 @@ DEFAULT_BUFFER_SIZE = 268435456  # 256 * 2**20
 
 
 @contextlib.contextmanager
-def _record_buffer(records, buffer_size=DEFAULT_BUFFER_SIZE):
+def _record_buffer(records):
     """
     Buffer for transform functions which require multiple passes through data.
 
     Value returned by context manager is a function which returns an iterator
     through records.
     """
+    record_list = list(records)
     def record_iter():
-        rl = list(records)
         i = 0
-        while i < len(rl):
-            cp = copy.deepcopy(rl[i])
-            yield cp
+        while i < len(record_list):
+            yield record_list[i]
             i = i + 1
     yield record_iter
-    """
-    with tempfile.SpooledTemporaryFile(buffer_size, mode='wb+') as tf:
-        pickler = pickle.Pickler(tf)
-        for record in records:
-            pickler.dump(record)
-
-        def record_iter():
-            tf.seek(0)
-            unpickler = pickle.Unpickler(tf)
-            while True:
-                try:
-                    yield unpickler.load()
-                except EOFError:
-                    break
-
-        yield record_iter
-    """
-
 
 def dashes_cleanup(records, prune_chars='.:?~'):
     """

@@ -635,21 +635,11 @@ class RecordBufferTestCase(unittest.TestCase):
 
     def test_multi_pass(self):
         with transform._record_buffer(self.seq_iter) as iter_f:
-            print('typeiterf', type(iter_f))
-            retiterf = iter_f()
-            print('type return from iterf', retiterf)
-            records = list(retiterf)
-            print('type list(iterf())', type(records))
+            records = list(iter_f())
             self._compare(records)
-
-            print('2. typeiterf', type(iter_f))
-            retiterf = iter_f()
-            print('2. type return from iterf', retiterf)
-            records = list(retiterf)
-            print('2. type list(iterf())', type(records))
+            
+            records = list(iter_f())
             self._compare(records)
-            #records = list(iter_f())
-            #self._compare(records)
 
 class DropColumnsTestCase(unittest.TestCase):
     def setUp(self):
